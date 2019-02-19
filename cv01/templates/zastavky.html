@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Zastávky v PID</title>
+</head>
+<body>
+<h1>Seznam zastávek v PID</h1>
+<ul>
+{% for f in features %}
+    <li>{{f.properties.ZAST_NAZEV}}</li>
+{% endfor %}
+</ul>
+</body>
+</html>
