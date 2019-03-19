@@ -14,4 +14,8 @@ def hello():
 def test():
     return ""
 
-app.run()
+@app.route("/map")
+def mapPage():
+    return render_template("map.html")
+
+app.run(port=5000,debug=True)
