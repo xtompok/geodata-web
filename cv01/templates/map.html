@@ -130,6 +130,51 @@ Text
 
     $.getJSON("/static/DOP_PID_VSTUPY_B.json",zastLoaded);
 
+    function genLineStyle(feature){
+	switch (feature.properties["LIN_ALIAS_WEB"]){
+		case "A":
+			return {color: "green"};
+		case "B":
+			return {color: "yellow"};
+		case "C":
+			return {color: "red"};	
+	}
+    	return {opacity: 0};
+    }
+
+    function linesLoaded(data){
+	    var linesLayer = new L.GeoJSON(data,{
+	    	style: genLineStyle});
+	    linesLayer.addTo(mymap);
+    }
+
+    //$.getJSON("/static/linky.json",linesLoaded);
+ 
+     function lineALoaded(data){
+		new L.GeoJSON(data,
+			{style: function(feature){ return {color: "green"};}
+			}).addTo(mymap);
+     }
+
+     $.getJSON("/lines?name=A",lineALoaded);
+
+     function lineBLoaded(data){
+		new L.GeoJSON(data,
+			{style: function(feature){ return {color: "yellow"};}
+			}).addTo(mymap);
+     }
+
+     $.getJSON("/lines?name=B",lineBLoaded);
+
+     function lineCLoaded(data){
+		new L.GeoJSON(data,
+			{style: function(feature){ return {color: "red"};}
+			}).addTo(mymap);
+     }
+
+     $.getJSON("/lines?name=C",lineCLoaded);
+
+
    /* var zastLayer = L.GeoJSON.AJAX("/static/DOP_PID_VSTUPY_B.json",
     					{pointToLayer: zastToLayer}
 				  );*/
