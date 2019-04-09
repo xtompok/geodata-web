@@ -9,7 +9,14 @@
     <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
    integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
    crossorigin=""></script>
-    <link rel="stylesheet" href="/static/style.css" />
+   <script
+	  src="https://code.jquery.com/jquery-3.3.1.min.js"
+	  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+	  crossorigin="anonymous"></script>
+   <link rel="stylesheet" href="/static/markercluster/MarkerCluster.css" />
+   <link rel="stylesheet" href="/static/markercluster/MarkerCluster.Default.css" />
+   <script src="/static/markercluster/leaflet.markercluster.js"></script>
+   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
 <div id="mapid">
@@ -17,7 +24,7 @@
 Text
 <script>
     var mymap = L.map('mapid');
-    mymap.setView([50, 15], 13);
+    mymap.setView([50.08, 14.44], 13);
     var tileLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
@@ -25,6 +32,113 @@ Text
         }
     );
     tileLayer.addTo(mymap);
+
+    function zastToLayer(feature,latlng){
+	    var linky = feature.properties["VSTUPY_LINKA"];
+	    if (linky === "A"){
+	    	var color = "green";
+	    } else if (linky === "B") {
+		var color = "yellow";		    
+	    } else if (linky === "C") {
+		var color = "red";	    
+	    }
+	    var zastMarkerOptions = {
+		radius: 8,
+		fillColor: color,
+		color: "#000",
+		weight: 1,
+		opacity: 1,
+		fillOpacity: 0.8
+	    };
+
+	    if (linky === "A,B"){
+		zastMarkerOptions.fillColor = "green";
+		zastMarkerOptions.color = "yellow";
+		zastMarkerOptions.weight = "4";	    
+	    }
+	return L.circleMarker(latlng,zastMarkerOptions);
+    }
+    function zastToImgLayer(feature,latlng){
+	    var linky = feature.properties["VSTUPY_LINKA"];
+	    if (linky === "A"){
+	    	var url="/static/znak-a.gif"
+	    } else if (linky === "B") {
+		var url = "/static/znak-b.gif"		    
+	    } else if (linky === "C") {
+		var url = "/static/znak-c.gif";
+	    } else {
+		    var zastMarkerOptions = {
+			radius: 8,
+			fillColor: "blue",
+			color: "#000",
+			weight: 1,
+			opacity: 1,
+			fillOpacity: 0.8
+		    };
+		    return L.circleMarker(latlng,zastMarkerOptions);
+	    }
+	    var icon = new L.icon({
+		    iconUrl: url,
+		    iconSize: [40,50],
+		    iconAnchor: [20,25]
+		    });
+
+	    return L.marker(latlng,{icon: icon});
+    }
+    
+
+    function zastEachFeature(feature,layer){
+	var props = feature.properties;
+
+	var elem = $("<div>",{});
+	elem.addClass("column");
+	elem.append($("<h2>",{text: feature.properties["VSTUPY_UZEL_NAZEV"]}));
+	elem.append($("<i>",{text: feature.properties["VSTUPY_POPIS"]}));
+	var span = $("<span>");
+	if (props["VSTUPY_LINKA"].indexOf("A") != -1){
+		span.append($("<img>",{src: "/static/znak-a.gif"}));
+	}
+	if (props["VSTUPY_LINKA"].indexOf("B") != -1){
+		span.append($("<img>",{src: "/static/znak-b.gif"}));
+	}
+	if (props["VSTUPY_LINKA"].indexOf("C") != -1){
+		span.append($("<img>",{src: "/static/znak-c.gif"}));
+	}
+	elem.append(span);
+
+	if (props["VSTUPY_VAZBA_TRAM"] === "1"){
+		elem.append($("<span>",{text: "Přestup na tram"}));	
+	}
+	if (props["VSTUPY_VAZBA_BUS"] === "1"){
+		elem.append($("<span>",{text: "Přestup na bus"}));	
+	}
+	if (props["VSTUPY_VAZBA_VLAK"] === "1"){
+		elem.append($("<span>",{text: "Přestup na vlak"}));	
+	}
+
+	layer.bindPopup(elem.prop('outerHTML')); 
+    }
+
+    function zastLoaded(data){
+	console.log("Loaded");
+	var zastLayer = new L.GeoJSON(data,{
+		pointToLayer: zastToImgLayer,
+		onEachFeature: zastEachFeature
+		}); 
+	zastLayer.addTo(mymap);
+    }
+
+    $.getJSON("/static/DOP_PID_VSTUPY_B.json",zastLoaded);
+
+   /* var zastLayer = L.GeoJSON.AJAX("/static/DOP_PID_VSTUPY_B.json",
+    					{pointToLayer: zastToLayer}
+				  );*/
+
+    //zastLayer.addTo(mymap);
+
+
+
+
 </script>
 </body>
 </html>

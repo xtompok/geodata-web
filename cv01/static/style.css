@@ -1,3 +1,8 @@
 #mapid {
     height: 640px;
 }
+
+.column {
+    display: flex;
+    flex-direction: column;	
+}
