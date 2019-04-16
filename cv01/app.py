@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 with open("static/DOP_PID_ZASTAVKY_B.json",encoding="utf-8") as zastfile:
     zast = json.load(zastfile)
-    fs = zast["features"]
+    stops = zast["features"]
 
 lines = None
 linedict = {}
@@ -16,7 +16,7 @@ with open("static/linky.json", encoding="utf-8") as linesfile:
 
 @app.route("/")
 def hello():
-    return render_template("zastavky.html", features=fs)
+    return render_template("zastavky.html", features=stops)
 
 @app.route("/test")
 def test():
@@ -51,6 +51,32 @@ def getLine():
     res = {"type" : "FeatureCollection",
     	   "features": [line]}
     return jsonify(res)
+
+@app.route("/stops")
+def getStops():
+    (minlon, error) = get_attribute(request,"minlon",float)
+    if minlon is None:
+	    abort(404)
+    (minlat, error) = get_attribute(request,"minlat",float)
+    if minlat is None:
+	    abort(404)
+    (maxlon, error) = get_attribute(request,"maxlon",float)
+    if maxlon is None:
+	    abort(404)
+    (maxlat, error) = get_attribute(request,"maxlat",float)
+    if maxlat is None:
+	    abort(404)
+    
+    stopsout = []
+    for stop in stops:
+	    (lon,lat) = stop["geometry"]["coordinates"]
+	    if minlon <= lon and lon <= maxlon and minlat <= lat and lat <= maxlat:
+		    stopsout.append(stop)
+    outjson = {"type" : "FeatureCollection", "features": stopsout} 
+    return jsonify(outjson)
+
+    
+
 
     
 

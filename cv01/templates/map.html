@@ -25,6 +25,8 @@ Text
 <script>
     var mymap = L.map('mapid');
     mymap.setView([50.08, 14.44], 13);
+
+
     var tileLayer = L.tileLayer('https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
@@ -128,7 +130,19 @@ Text
 	zastLayer.addTo(mymap);
     }
 
-    $.getJSON("/static/DOP_PID_VSTUPY_B.json",zastLoaded);
+    function clusteredZastLoaded(data){
+    	var clusterZastLayer = L.markerClusterGroup();
+	for (var i = 0; i<data.features.length; i++){
+		var f = data.features[i];
+		var coords = L.latLng(f.geometry.coordinates[1],f.geometry.coordinates[0]);
+		var layer = zastToImgLayer(f,coords);
+		zastEachFeature(f,layer);
+		clusterZastLayer.addLayer(layer);
+	}
+	clusterZastLayer.addTo(mymap);
+    }
+
+    $.getJSON("/static/DOP_PID_VSTUPY_B.json",clusteredZastLoaded);
 
     function genLineStyle(feature){
 	switch (feature.properties["LIN_ALIAS_WEB"]){
@@ -173,6 +187,55 @@ Text
      }
 
      $.getJSON("/lines?name=C",lineCLoaded);
+
+     var stopsLG = new L.layerGroup();
+     stopsLG.addTo(mymap);
+
+     function stopToLayer(feature,latlng){
+	    var zastMarkerOptions = {
+		radius: 8,
+		fillColor: "blue",
+		color: "#000",
+		weight: 1,
+		opacity: 1,
+		fillOpacity: 0.8
+	    };
+	    return L.circleMarker(latlng,zastMarkerOptions);
+    }
+
+    function stopEachFeature(feature,layer){
+	var props = feature.properties;
+
+	var elem = $("<div>",{});
+	elem.addClass("column");
+	elem.append($("<h2>",{text: feature.properties["ZAST_NAZEV"]}));
+	layer.bindPopup(elem.prop('outerHTML')); 
+    }
+
+     function stopsLoaded(data){
+	var stopsLayer = new L.GeoJSON(data,{
+		pointToLayer: stopToLayer,
+		onEachFeature: stopEachFeature
+		}); 
+	stopsLayer.addTo(stopsLG);
+     }
+
+     function loadStops(){
+	     var bbox = mymap.getBounds();
+	     $.getJSON("/stops?minlon="+bbox.getWest()+
+	     	"&minlat="+bbox.getSouth()+
+		"&maxlon="+bbox.getEast()+
+		"&maxlat="+bbox.getNorth(),stopsLoaded);
+	     
+     }
+
+     loadStops();
+
+     mymap.on('zoomstart',function(e){stopsLG.clearLayers()});
+     mymap.on('zoomend', function(e){loadStops()});
+     mymap.on('movestart', function(e){stopsLG.clearLayers()});
+     mymap.on('moveend', function(e){loadStops()});
+     
 
 
    /* var zastLayer = L.GeoJSON.AJAX("/static/DOP_PID_VSTUPY_B.json",
