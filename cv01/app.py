@@ -37,7 +37,6 @@ def get_attribute(request,name,convert=None,default=None):
             return (default,"Attribute '{}' in wrong format".format(name))
     return (attr,None)
 
-
 @app.route("/lines")
 def getLine():
     (lname,error) = get_attribute(request,"name")
@@ -51,6 +50,12 @@ def getLine():
     res = {"type" : "FeatureCollection",
     	   "features": [line]}
     return jsonify(res)
+
+@app.route("/search",methods=["POST"])
+def searchStop():
+    print(request.form)
+    return ""
+
 
 @app.route("/stops")
 def getStops():
