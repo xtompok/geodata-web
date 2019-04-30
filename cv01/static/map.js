@@ -104,6 +104,8 @@ function clusteredZastLoaded(data){
 	}
 	clusterZastLayer.addTo(entriesLG);
 }
+
+
 function genLineStyle(feature){
 	switch (feature.properties["LIN_ALIAS_WEB"]){
 		case "A":
@@ -211,4 +213,36 @@ function zastChanged(e){
 	} else {
 		stopsLG.clearLayers();			
 	}
+}
+function searchToLayer(feature,latlng){
+	var zastMarkerOptions = {
+		radius: 8,
+		fillColor: "red",
+		color: "#000",
+		weight: 1,
+		opacity: 1,
+		fillOpacity: 0.8
+	};
+	return L.circleMarker(latlng,zastMarkerOptions);
+}
+function searchEachFeature(feature,layer){
+	var elem = $("<div>",{});
+	elem.addClass("column");
+	elem.append($("<h2>",{text: feature.properties["ZAST_NAZEV"]}));
+	layer.bindPopup(elem.prop('outerHTML')); 
+}
+
+function searchCallback(data){
+	searchLG.clearLayers();
+	var searchLayer = new L.GeoJSON(data,{
+		pointToLayer: searchToLayer,
+		onEachFeature: searchEachFeature
+		});
+	mymap.fitBounds(searchLayer.getBounds());
+	searchLayer.addTo(searchLG);
+}
+
+function searchStops(e){
+	var searchstr = stopInput.value; 	
+	$.getJSON("/search?stop="+searchstr, searchCallback);
 }

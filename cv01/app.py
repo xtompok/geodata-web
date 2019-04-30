@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, abort, jsonify
 import json
+import psycopg2
+
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 
 with open("static/DOP_PID_ZASTAVKY_B.json",encoding="utf-8") as zastfile:
     zast = json.load(zastfile)
@@ -13,6 +16,8 @@ with open("static/linky.json", encoding="utf-8") as linesfile:
     for f in lines["features"]:
 	    linedict[f["properties"]["LIN_ALIAS_WEB"]]=f
 
+conn = psycopg2.connect("SECRET!")
+cur = conn.cursor()
 
 @app.route("/")
 def hello():
@@ -20,7 +25,11 @@ def hello():
 
 @app.route("/test")
 def test():
-    return ""
+    cur.execute("SELECT other_tags->'surface' AS surface,* FROM lines WHERE highway='primary' AND other_tags->'maxspeed' = '50' LIMIT 1000;")
+    lines = []
+    for line in cur:
+	    lines.append(line)
+    return str(lines)
 
 @app.route("/map")
 def mapPage():
@@ -51,10 +60,16 @@ def getLine():
     	   "features": [line]}
     return jsonify(res)
 
-@app.route("/search",methods=["POST"])
+@app.route("/search")
 def searchStop():
-    print(request.form)
-    return ""
+    (search_str, error) = get_attribute(request,"stop",str)
+    search_str = search_str.lower()
+    stopsout = []
+    for stop in stops:
+	    if stop["properties"]["ZAST_NAZEV"].lower().startswith(search_str):
+		    stopsout.append(stop) 
+    outjson = {"type" : "FeatureCollection", "features": stopsout} 
+    return jsonify(outjson)
 
 
 @app.route("/stops")
@@ -86,3 +101,5 @@ def getStops():
     
 
 app.run(port=5000,debug=True)
+cur.close()
+conn.close()

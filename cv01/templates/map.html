@@ -31,11 +31,9 @@
 	<label for="zast_checkbox">Zastávky</label>
 </div>
 <div id="search">
-	<form method="POST" action="/search">
-		<label for="stop_input">Zadej zastávku</label>
-		<input type="text" id="stop_input" name="stop_input">
-		<input type="submit" value="Vyhledat">
-	</form>
+	<label for="stop_input">Zadej zastávku</label>
+	<input type="text" id="stop_input" name="stop_input">
+	<button id="stop_submit">Vyhledat</button>
 </div>
 
 <script>
@@ -58,12 +56,18 @@
      var stopsLG = new L.layerGroup();
      stopsLG.addTo(mymap);
 
+     var searchLG = new L.layerGroup();
+     searchLG.addTo(mymap);
+
      var zastCheckbox = document.getElementById("zast_checkbox");
      loadStops(zastCheckbox);
      var entriesCheckbox = document.getElementById("vstupy_checkbox");
      loadEntries(entriesCheckbox);
      var linesCheckbox = document.getElementById("metro_checkbox");
      loadLines(linesCheckbox);
+	
+     var stopInput = document.getElementById("stop_input");
+     var stopSubmit = document.getElementById("stop_submit");
 
      mymap.on('zoomstart',function(e){stopsLG.clearLayers()});
      mymap.on('zoomend', function(e){loadStops(zastCheckbox)});
@@ -73,6 +77,9 @@
      zastCheckbox.onchange = zastChanged;
      entriesCheckbox.onchange = entriesChanged;
      linesCheckbox.onchange = linesChanged;
+
+     stopInput.oninput = searchStops;
+     stopSubmit.onclick = searchStops;
 
 </script>
 </body>
