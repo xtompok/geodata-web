@@ -36,6 +36,12 @@
 	<button id="stop_submit">Vyhledat</button>
 </div>
 
+<div id="street_search">
+	<label for="street_input">Zadej ulici</label>
+	<input type="text" id="street_input" name="street_input">
+	<button id="street_submit">Vyhledat</button>
+</div>
+
 <script>
     var mymap = L.map('mapid');
     mymap.setView([50.08, 14.44], 13);
@@ -49,6 +55,8 @@
     );
     tileLayer.addTo(mymap);
 
+    addTramLines();
+
      var linesLG = new L.layerGroup();
      linesLG.addTo(mymap);
      var entriesLG = new L.layerGroup();
@@ -59,6 +67,9 @@
      var searchLG = new L.layerGroup();
      searchLG.addTo(mymap);
 
+     var streetLG = new L.layerGroup();
+     streetLG.addTo(mymap);
+
      var zastCheckbox = document.getElementById("zast_checkbox");
      loadStops(zastCheckbox);
      var entriesCheckbox = document.getElementById("vstupy_checkbox");
@@ -68,6 +79,9 @@
 	
      var stopInput = document.getElementById("stop_input");
      var stopSubmit = document.getElementById("stop_submit");
+
+     var streetInput = document.getElementById("street_input");
+     var streetSubmit = document.getElementById("street_submit");
 
      mymap.on('zoomstart',function(e){stopsLG.clearLayers()});
      mymap.on('zoomend', function(e){loadStops(zastCheckbox)});
@@ -80,6 +94,10 @@
 
      stopInput.oninput = searchStops;
      stopSubmit.onclick = searchStops;
+
+     streetInput.oninput = searchStreets;
+     streetSubmit.onclick = searchStreets;
+
 
 </script>
 </body>

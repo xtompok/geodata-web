@@ -246,3 +246,43 @@ function searchStops(e){
 	var searchstr = stopInput.value; 	
 	$.getJSON("/search?stop="+searchstr, searchCallback);
 }
+
+function streetEachFeature(feature,layer){
+	var elem = $("<div>",{});
+	elem.addClass("column");
+	elem.append($("<h2>",{text: feature.properties["name"]}));
+	layer.bindPopup(elem.prop('outerHTML')); 
+}
+
+function streetCallback(data){
+	style = {
+		'color' : 'red',
+		'weight' : 4
+		};
+	streetLG.clearLayers();
+	var streetLayer = new L.GeoJSON(data,{
+		style: style,
+		onEachFeature: streetEachFeature
+		});
+	mymap.fitBounds(streetLayer.getBounds());
+	streetLayer.addTo(streetLG);
+}
+
+function searchStreets(e){
+	var streetstr = streetInput.value; 	
+	$.getJSON("/street?name="+streetstr, streetCallback);
+}
+
+function tramLinesCallback(data){
+	style = {
+		'color' : 'black',
+		'weight' : 1
+		};
+	var layer = new L.geoJSON(data,{'style': style});
+	layer.addTo(mymap);
+
+}
+
+function addTramLines(){
+	$.getJSON("/tram_lines", tramLinesCallback);
+}

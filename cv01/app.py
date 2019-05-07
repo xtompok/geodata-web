@@ -23,6 +23,17 @@ cur = conn.cursor()
 def hello():
     return render_template("zastavky.html", features=stops)
 
+@app.route("/tram_lines")
+def tram_lines():
+    cur.execute("SELECT ST_AsGeoJSON(wkb_geometry) AS geom FROM lines WHERE other_tags->'railway'='tram';")
+    lines = list(map(lambda l: json.loads(l[0]), cur.fetchall()))
+#    lines = [ json.loads(l[0]) for l in cur.fetchall()]
+    outjson = {"type" : "FeatureCollection", "features": lines} 
+    return jsonify(outjson)
+
+def first(l):
+	return l[0]
+
 @app.route("/test")
 def test():
     cur.execute("SELECT other_tags->'surface' AS surface,* FROM lines WHERE highway='primary' AND other_tags->'maxspeed' = '50' LIMIT 1000;")
@@ -69,6 +80,34 @@ def searchStop():
 	    if stop["properties"]["ZAST_NAZEV"].lower().startswith(search_str):
 		    stopsout.append(stop) 
     outjson = {"type" : "FeatureCollection", "features": stopsout} 
+    return jsonify(outjson)
+
+@app.route("/street")
+def searchStreet():
+    (name, error) = get_attribute(request,"name",str)
+    if name is None:
+	    abort(404)
+    name += "%"
+    cur.execute("""
+    	SELECT ST_AsGeoJSON(wkb_geometry) AS geom,name
+	FROM lines
+	WHERE highway IS NOT NULL AND name ILIKE %s
+	LIMIT 3000;""",(name,)) # ILIKE for case insensitive 
+    outjson = {"type" : "FeatureCollection", "features": []} 
+    outjson["count"] = cur.rowcount
+    if cur.rowcount == 3000:
+	    return jsonify(outjson)
+    streets = []
+    for street in cur:
+        f = {"type": "Feature",
+             "geometry": json.loads(street[0]),
+    	     "properties" : {
+    	        "name": street[1]	
+    	    }
+        }
+        streets.append(f)
+
+    outjson["features"] = streets
     return jsonify(outjson)
 
 
