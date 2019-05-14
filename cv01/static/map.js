@@ -286,3 +286,14 @@ function tramLinesCallback(data){
 function addTramLines(){
 	$.getJSON("/tram_lines", tramLinesCallback);
 }
+
+
+function toggleControls(){
+	if (controlsDiv.style.display == "flex"){
+		controlsDiv.style.display = "none";	
+		showControlsBut.innerHTML = "Zobrazit ovládání";
+	} else {
+		controlsDiv.style.display = "flex";
+		showControlsBut.innerHTML = "Skrýt ovládání";
+	}
+}

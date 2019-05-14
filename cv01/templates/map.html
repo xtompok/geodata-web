@@ -20,26 +20,45 @@
    <script src="/static/map.js"></script>
 </head>
 <body>
-<div id="mapid">
-</div>
-<div id="controls">
-	<input type="checkbox" id="metro_checkbox" name="metro_checkbox" checked>
-	<label for="metro_checkbox">Linky metra</label>
-	<input type="checkbox" id="vstupy_checkbox" name="vstupy_checkbox" checked>
-	<label for="vstupy_checkbox">Vstupy do metra</label>
-	<input type="checkbox" id="zast_checkbox" name="zast_checkbox">
-	<label for="zast_checkbox">Zastávky</label>
-</div>
-<div id="search">
-	<label for="stop_input">Zadej zastávku</label>
-	<input type="text" id="stop_input" name="stop_input">
-	<button id="stop_submit">Vyhledat</button>
-</div>
-
-<div id="street_search">
-	<label for="street_input">Zadej ulici</label>
-	<input type="text" id="street_input" name="street_input">
-	<button id="street_submit">Vyhledat</button>
+<div class="container-column">
+	<div id="mapid">
+	</div>
+	<button id="show_controls">Zobrazit ovládání</button>
+	<div id="controls">
+	<div>
+	<h2> Vrstvy </h2>
+	<div id="layers" >
+		<div class="contr-elem">
+			<input type="checkbox" id="metro_checkbox" name="metro_checkbox" checked>
+			<label for="metro_checkbox">Linky metra</label>
+		</div>
+		<div class="contr-elem">
+			<input type="checkbox" id="vstupy_checkbox" name="vstupy_checkbox" checked>
+			<label for="vstupy_checkbox">Vstupy do metra</label>
+		</div>
+		<div class="contr-elem">
+			<input type="checkbox" id="zast_checkbox" name="zast_checkbox">
+			<label for="zast_checkbox">Zastávky</label>
+		</div>
+	</div>
+	</div>
+	<div>
+	<h2>Hledání zastávek</h2>
+	<div id="search">
+		<!--label for="stop_input">Zadej zastávku</label-->
+		<input type="text" id="stop_input" name="stop_input">
+		<button id="stop_submit">Vyhledat</button>
+	</div>
+	</div>
+	<div>
+	<h2>Hledání ulic</h2>
+	<div id="street_search">
+		<!--label for="street_input">Zadej ulici</label-->
+		<input type="text" id="street_input" name="street_input">
+		<button id="street_submit">Vyhledat</button>
+	</div>
+	</div>
+	</div>
 </div>
 
 <script>
@@ -97,6 +116,11 @@
 
      streetInput.oninput = searchStreets;
      streetSubmit.onclick = searchStreets;
+
+     var showControlsBut = document.getElementById("show_controls");
+     showControlsBut.onclick = toggleControls;
+     var controlsDiv = document.getElementById("controls");
+
 
 
 </script>
